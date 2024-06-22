@@ -1,0 +1,26 @@
+spring:
+  config:
+    activate:
+      on-profile: stage
+  application:
+    name: hhplus-lecture-application-system
+  datasource:
+    url: jdbc:mysql://localhost:3301/hhplus-lecture-stage-database
+    username: ${SPRING_DATASOURCE_USERNAME:root}  # 기본값 설정
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}  # 기본값 설정
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show-sql: true
+        generate-ddl: true
+
+server:
+  port: 24021 #24년 2주차 과제 stage
+
+logging:
+  level:
+    root: info
+  config: classpath:log/logback-spring.xml
