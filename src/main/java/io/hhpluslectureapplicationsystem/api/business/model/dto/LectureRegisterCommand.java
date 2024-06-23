@@ -13,7 +13,9 @@ import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
 public record LectureRegisterCommand(
 	String title,
 	String description,
-	LocalDateTime startTime,
+	LocalDateTime applicationOpenTime,
+	LocalDateTime applicationCloseTime,
+	LocalDateTime lectureStartTime,
 	int durationMinutes,
 	int capacity,
 	String location,
@@ -23,6 +25,6 @@ public record LectureRegisterCommand(
 	public Lecture toEntity(String id) {
 		return LECTURE_ENTITY_MAPPER.toEntity(this, id)
 			.withPk(id)
-			.determineStatus(startTime, durationMinutes);
+			.determineStatus(lectureStartTime, durationMinutes);
 	}
 }

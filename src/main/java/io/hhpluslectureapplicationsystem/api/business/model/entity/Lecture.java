@@ -41,7 +41,13 @@ public class Lecture {
 	private String description;
 
 	@Column(nullable = false)
-	private LocalDateTime startTime;
+	private LocalDateTime applicationOpenTime;
+
+	@Column(nullable = false)
+	private LocalDateTime applicationCloseTime;
+
+	@Column(nullable = false)
+	private LocalDateTime lectureStartTime;
 
 	@Column(nullable = false)
 	private int durationMinutes;

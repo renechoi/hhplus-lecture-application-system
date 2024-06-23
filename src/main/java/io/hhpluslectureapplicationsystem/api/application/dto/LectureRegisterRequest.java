@@ -30,8 +30,14 @@ public class LectureRegisterRequest {
 	@NotBlank(message = "설명은 필수 항목입니다")
 	private String description;
 
-	@NotNull(message = "시작 시간은 필수 항목입니다")
-	private LocalDateTime startTime;
+	@NotNull(message = "신청 시작 시간은 필수 항목입니다")
+	private LocalDateTime applicationOpenTime;
+
+	@NotNull(message = "신청 종료 시간은 필수 항목입니다")
+	private LocalDateTime applicationCloseTime;
+
+	@NotNull(message = "강의 시작 시간은 필수 항목입니다")
+	private LocalDateTime lectureStartTime;
 
 	@Min(value = 1, message = "강의 시간은 최소 1분이어야 합니다")
 	private int durationMinutes;

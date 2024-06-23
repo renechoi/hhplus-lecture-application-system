@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureStatus;
 import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper;
+import jakarta.persistence.Column;
 
 /**
  * @author : Rene Choi
@@ -15,7 +16,9 @@ public record LectureRegisterInfo(
 	Long version,
 	String title,
 	String description,
-	LocalDateTime startTime,
+	LocalDateTime applicationOpenTime,
+	LocalDateTime applicationCloseTime,
+	LocalDateTime lectureStartTime,
 	int durationMinutes,
 	int capacity,
 	String location,
