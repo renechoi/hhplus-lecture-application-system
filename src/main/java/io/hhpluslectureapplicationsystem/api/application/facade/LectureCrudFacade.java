@@ -22,7 +22,7 @@ public class LectureCrudFacade {
 		return LectureRegisterationResponse.from(crudService.register(registerRequest.toCommand()));
 	}
 
-	public LectureGeneralResponse searchSingleLectureById(String id) {
-		return LectureGeneralResponse.from(crudService.searchSingleLectureById(id));
+	public LectureGeneralResponse searchSingleLectureById(String externalId) {
+		return LectureGeneralResponse.from(crudService.searchSingleLectureById(externalId));
 	}
 }

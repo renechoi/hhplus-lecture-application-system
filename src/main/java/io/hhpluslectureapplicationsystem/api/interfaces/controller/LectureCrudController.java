@@ -31,11 +31,11 @@ public class LectureCrudController {
 	@PostMapping
 	public ResponseEntity<LectureRegisterationResponse> register(@Validated @RequestBody LectureRegisterRequest registerRequest) {
 		LectureRegisterationResponse response = facade.register(registerRequest);
-		return created(create("/lectures/" + response.lectureId())).body(response);
+		return created(create("/lectures/" + response.lectureExternalId())).body(response);
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<LectureGeneralResponse> searchSingleLecture(@PathVariable String id) {
-		return ok(facade.searchSingleLectureById(id));
+	@GetMapping("/{externalId}")
+	public ResponseEntity<LectureGeneralResponse> searchSingleLecture(@PathVariable String externalId) {
+		return ok(facade.searchSingleLectureById(externalId));
 	}
 }

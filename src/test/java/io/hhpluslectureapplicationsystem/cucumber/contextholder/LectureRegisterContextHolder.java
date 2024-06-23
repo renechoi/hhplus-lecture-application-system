@@ -26,8 +26,8 @@ import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisteratio
 
 
 	public static void putLectureRegisterationResponse(LectureRegisterationResponse response) {
-		lectureResponseMap.put(response.lectureId(), response);
-		mostRecentLectureResponseId.set(response.lectureId());
+		lectureResponseMap.put(response.lectureExternalId(), response);
+		mostRecentLectureResponseId.set(response.lectureExternalId());
 	}
 
 	public static LectureRegisterationResponse getLectureRegisterationResponse(String id) {

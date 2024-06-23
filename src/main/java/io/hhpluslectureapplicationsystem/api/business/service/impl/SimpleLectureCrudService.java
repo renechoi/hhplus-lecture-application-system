@@ -31,8 +31,8 @@ public class SimpleLectureCrudService implements LectureCrudService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public LectureGeneralInfo searchSingleLectureById(String id) {
-		return LectureGeneralInfo.from(lectureRepository.findById(id).orElseThrow(LectureNotFoundException::new));
+	public LectureGeneralInfo searchSingleLectureById(String externalId) {
+		return LectureGeneralInfo.from(lectureRepository.findByLectureExternalId(externalId).orElseThrow(LectureNotFoundException::new));
 	}
 
 }

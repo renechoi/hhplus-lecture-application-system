@@ -48,7 +48,7 @@ public class LectureRegisterApiStepDef implements En {
 		LectureRegisterationResponse actualResponse = getMostRecentLectureRegisterationResponse();
 		assertNotNull(actualResponse, "등록된 특강의 응답이 존재하지 않습니다.");
 
-		boolean matchFound = expectedLectures.stream().anyMatch(expectedLecture -> matchResponse(expectedLecture, parseLectureRegisterationResponse(searchLectureWithOk(actualResponse.lectureId()))));
+		boolean matchFound = expectedLectures.stream().anyMatch(expectedLecture -> matchResponse(expectedLecture, parseLectureRegisterationResponse(searchLectureWithOk(actualResponse.lectureExternalId()))));
 
 		assertTrue(matchFound, "기대한 특강 정보가 일치하지 않습니다.");
 	}
