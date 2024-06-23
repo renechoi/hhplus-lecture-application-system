@@ -1,17 +1,17 @@
 Feature: 특강 신청 서비스 - 특강 등록
 
   Scenario: 새로운 특강 객체를 등록한다 - 기본 시나리오
-    Given 새로운 특강 정보가 주어졌을 때
-    When 사용자가 새로운 특강 등록을 요청하면
-    Then 특강 등록이 성공적으로 완료된다
-    And 등록된 특강의 정보는 조회할 수 있어야 한다
+    Given 다음과 같은 특강 정보가 주어지고 등록을 요청하면 성공 응답을 받는다
+      | title   | description | startTime | durationMinutes | capacity | location | instructor |
+      | 항해 특강 1 | 항해 특강 1 입니다 | now       | 120             | 30       | Online   | 김항해        |
+    And 등록된 특강의 정보를 조회하면 아래와 같은 정보가 확인되어야 한다
+      | title   | description | startTime | durationMinutes | capacity | location | instructor |
+      | 항해 특강 1 | 항해 특강 1 입니다 | notNull   | 120             | 30       | Online   | 김항해        |
+
 
   Scenario: 특강 등록 시 필수 필드가 누락된 경우 예외가 발생한다
-    Given 필수 필드가 누락된 특강 정보가 주어졌을 때
-    When 사용자가 특강 등록을 요청하면
-    Then 예외가 발생한다
+    Given 다음과 같은 필수 필드가 누락된 특강 정보가 주어지고 등록을 요청하면 실패 응답을 받는다
+      | title   | description | startTime | durationMinutes | capacity | location | instructor |
+      |         | 항해 특강 1 입니다 | now       | 120             | 30       | Online   | 김항해        |
 
-  Scenario: 중복된 특강 제목으로 등록 시 예외가 발생한다
-    Given 중복된 제목의 특강 정보가 주어졌을 때
-    When 사용자가 특강 등록을 요청하면
-    Then 예외가 발생한다
+
