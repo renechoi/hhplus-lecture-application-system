@@ -1,4 +1,4 @@
-package io.hhpluslectureapplicationsystem.api.business.operators;
+package io.hhpluslectureapplicationsystem.api.business.operators.pkgenerator;
 
 /**
  * @author : Rene Choi
