@@ -1,4 +1,4 @@
-package io.hhpluslectureapplicationsystem.api.infrastructure.persistence;
+package io.hhpluslectureapplicationsystem.api.business.persistence;
 
 import java.util.Optional;
 
@@ -12,4 +12,6 @@ import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
  */
 public interface LectureRepository extends JpaRepository<Lecture, String> {
 	Optional<Lecture> findByLectureExternalId(String externalId);
+
+	boolean existsByLectureExternalId(String lectureExternalId);
 }
