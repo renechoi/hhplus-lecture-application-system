@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralResponse;
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisterRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisterationResponse;
 import io.hhpluslectureapplicationsystem.api.application.facade.LectureCrudFacade;
@@ -38,4 +39,10 @@ public class LectureCrudController {
 	public ResponseEntity<LectureGeneralResponse> searchSingleLecture(@PathVariable String externalId) {
 		return ok(facade.searchSingleLectureById(externalId));
 	}
+
+	@GetMapping
+	public ResponseEntity<LectureGeneralResponses> listSearchLectures() {
+		return ok(facade.listSearchLectures());
+	}
+
 }
