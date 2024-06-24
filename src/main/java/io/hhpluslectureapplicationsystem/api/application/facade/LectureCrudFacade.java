@@ -1,6 +1,7 @@
 package io.hhpluslectureapplicationsystem.api.application.facade;
 
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralResponse;
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisterRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisterationResponse;
 import io.hhpluslectureapplicationsystem.api.business.service.LectureCrudService;
@@ -24,5 +25,9 @@ public class LectureCrudFacade {
 
 	public LectureGeneralResponse searchSingleLectureById(String externalId) {
 		return LectureGeneralResponse.from(crudService.searchSingleLectureById(externalId));
+	}
+
+	public LectureGeneralResponses listSearchLectures() {
+		return LectureGeneralResponses.from(crudService.listSearchLectures());
 	}
 }
