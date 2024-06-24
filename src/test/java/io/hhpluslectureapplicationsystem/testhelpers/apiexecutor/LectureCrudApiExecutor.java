@@ -36,4 +36,9 @@ public class LectureCrudApiExecutor extends AbstractRequestExecutor {
 	public static ExtractableResponse<Response> searchLectureWithOk(String lectureId) {
 		return doGetWithOk(getRequestSpecification(DynamicPortHolder.getPort()), URL_PATH + "/" + lectureId);
 	}
+
+	public static ExtractableResponse<Response> listSearchLecturesWithOk() {
+		return doGetWithOk(getRequestSpecification(DynamicPortHolder.getPort()), URL_PATH);
+	}
+
 }
