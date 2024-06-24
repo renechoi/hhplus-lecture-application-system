@@ -27,4 +27,8 @@ public record LectureGeneralResponse(
 	public static LectureGeneralResponse from(LectureGeneralInfo info) {
 		return ObjectMapperBasedVoMapper.convert(info, LectureGeneralResponse.class);
 	}
+
+	public boolean isSameTitle(String lectureTitle) {
+		return lectureTitle.equals(this.title);
+	}
 }
