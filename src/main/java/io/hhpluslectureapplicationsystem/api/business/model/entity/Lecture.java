@@ -3,10 +3,6 @@ package io.hhpluslectureapplicationsystem.api.business.model.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -82,5 +78,9 @@ public class Lecture {
 	public Lecture determineStatus(LocalDateTime startTime, int durationMinutes) {
 		this.status = LectureStatus.determineStatus(startTime, durationMinutes);
 		return this;
+	}
+
+	public LocalDateTime calculateLectureEndTime() {
+		return this.lectureStartTime.plusMinutes(durationMinutes);
 	}
 }
