@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import io.hhpluslectureapplicationsystem.api.business.operators.pkgenerator.LecturePkGenerator;
 import lombok.extern.slf4j.Slf4j;
 
 /**

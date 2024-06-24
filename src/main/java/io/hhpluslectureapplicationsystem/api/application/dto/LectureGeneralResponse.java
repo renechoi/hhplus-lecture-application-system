@@ -11,7 +11,7 @@ import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper
  * @since : 2024/06/23
  */
 public record LectureGeneralResponse(
-	String lectureId,
+	String lectureExternalId,
 	Long version,
 	String title,
 	String description,
@@ -26,5 +26,9 @@ public record LectureGeneralResponse(
 ) {
 	public static LectureGeneralResponse from(LectureGeneralInfo info) {
 		return ObjectMapperBasedVoMapper.convert(info, LectureGeneralResponse.class);
+	}
+
+	public boolean isSameTitle(String lectureTitle) {
+		return lectureTitle.equals(this.title);
 	}
 }

@@ -12,7 +12,7 @@ import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper
  * @since : 2024/06/23
  */
 public record LectureGeneralInfo(
-	String lectureId,
+	String lectureExternalId,
 	Long version,
 	String title,
 	String description,

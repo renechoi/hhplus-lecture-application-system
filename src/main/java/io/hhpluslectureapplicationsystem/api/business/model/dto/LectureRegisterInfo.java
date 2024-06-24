@@ -12,7 +12,7 @@ import jakarta.persistence.Column;
  * @since : 2024/06/23
  */
 public record LectureRegisterInfo(
-	String lectureId,
+	String lectureExternalId,
 	Long version,
 	String title,
 	String description,

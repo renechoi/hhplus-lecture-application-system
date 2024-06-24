@@ -1,19 +1,19 @@
-package io.hhpluslectureapplicationsystem.api.business.operators;
+package io.hhpluslectureapplicationsystem.api.business.operators.pkgenerator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.ibm.icu.text.Transliterator;
-
 import org.springframework.stereotype.Component;
+
+import com.ibm.icu.text.Transliterator;
 
 /**
  * @author : Rene Choi
  * @since : 2024/06/23
  */
 @Component
-public class LecturePkGenerator implements PkGenerator{
-	private final String midfix = "-LC-";
+public class LectureApplicationPkGenerator implements PkGenerator{
+	private final String midfix = "-LA-";
 	private final Transliterator transliterator = Transliterator.getInstance("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC");
 
 

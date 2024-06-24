@@ -1,6 +1,7 @@
 package io.hhpluslectureapplicationsystem.api.business.model.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +32,9 @@ public class Lecture {
 
 	@Id
 	private String lectureId;
+
+	@Column(nullable = false, unique = true)
+	private String lectureExternalId;
 
 	@Version
 	private Long version;
@@ -64,6 +69,10 @@ public class Lecture {
 	@Enumerated(EnumType.STRING)
 	private LectureStatus status;
 
+	@PrePersist
+	private void onCreate() {
+		this.lectureExternalId = UUID.randomUUID().toString().substring(0,12);
+	}
 
 	public Lecture withPk(String id) {
 		this.lectureId = id;
