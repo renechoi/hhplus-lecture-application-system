@@ -31,6 +31,7 @@ public record LectureApplicationHistoryInfo(
 			.lectureApplication(LectureApplicationInfo.from(lectureApplication))
 			.success(history.isSuccess())
 			.appliedAt(history.getAppliedAt())
+			.requestAt(history.getRequestAt())
 			.build();
 	}
 }

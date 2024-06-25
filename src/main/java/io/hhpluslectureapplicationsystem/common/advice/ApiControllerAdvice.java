@@ -1,5 +1,7 @@
 package io.hhpluslectureapplicationsystem.common.advice;
 
+import static io.hhpluslectureapplicationsystem.common.model.GlobalResponseCode.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,13 +16,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import io.hhpluslectureapplicationsystem.common.exception.ServerException;
+import io.hhpluslectureapplicationsystem.common.model.CommonApiResponse;
 import io.hhpluslectureapplicationsystem.common.model.ErrorResponse;
+import io.hhpluslectureapplicationsystem.common.model.GlobalResponseCode;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
+@Slf4j
 class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        return ResponseEntity.status(500).body(new ErrorResponse("500", "에러가 발생했습니다."));
+    public Object handleException(Exception ex) {
+        log.error("processUnDefinedErrors: {}", ex.getMessage());
+        return new CommonApiResponse<>(UNKNOWN_ERROR);
+    }
+
+    @ExceptionHandler(ServerException.class)
+    public Object processServerException(ServerException serverException) {
+        log.error("ServerException: {}", serverException.getMessage());
+        return new CommonApiResponse<>(serverException.getCode());
     }
 
     @Override
