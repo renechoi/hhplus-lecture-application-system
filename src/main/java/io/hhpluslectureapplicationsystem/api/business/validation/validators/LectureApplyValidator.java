@@ -1,11 +1,14 @@
 package io.hhpluslectureapplicationsystem.api.business.validation.validators;
 
+import static io.hhpluslectureapplicationsystem.common.model.GlobalResponseCode.*;
+
 import org.springframework.stereotype.Component;
 
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplyCommand;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
 import io.hhpluslectureapplicationsystem.api.business.validation.specification.LectureCapacitySpecification;
 import io.hhpluslectureapplicationsystem.api.business.validation.specification.UniqueUserApplicationSpecification;
+import io.hhpluslectureapplicationsystem.common.exception.LectureNotApplicableException;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -17,15 +20,15 @@ import lombok.RequiredArgsConstructor;
 public class LectureApplyValidator implements Validator<LectureApplyCommand, Lecture> {
 
 	private final LectureCapacitySpecification capacitySpecification;
-	private final UniqueUserApplicationSpecification userApplicationSpecification;
+	private final UniqueUserApplicationSpecification uniqueUserApplicationSpecification;
 
 	@Override
 	public void validate(LectureApplyCommand command, Lecture lecture) {
-		if (userApplicationSpecification.isNotSatisfiedBy(command, lecture)) {
-			throw new IllegalArgumentException("이미 신청한 사용자입니다.");
+		if (uniqueUserApplicationSpecification.isNotSatisfiedBy(command, lecture)) {
+			throw new LectureNotApplicableException(DUPLICATE_APPLICATION);
 		}
 		if (capacitySpecification.isNotSatisfiedBy(command, lecture)) {
-			throw new IllegalArgumentException("특강 신청이 마감되었습니다.");
+			throw new LectureNotApplicableException(LECTURE_FULL);
 		}
 	}
 }

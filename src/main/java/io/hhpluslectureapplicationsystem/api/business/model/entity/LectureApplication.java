@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Builder
-// @EntityListeners(LectureApplicationListener.class)
 public class LectureApplication extends AbstractAggregateRoot<LectureApplication> {
 
 	@Id

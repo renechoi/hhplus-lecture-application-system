@@ -1,5 +1,7 @@
 package io.hhpluslectureapplicationsystem.api.business.validation.specification;
 
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Component;
 
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplyCommand;
@@ -19,6 +21,7 @@ public class UniqueUserApplicationSpecification implements Specification<Lecture
 
 	@Override
 	public boolean isSatisfiedBy(LectureApplyCommand command, Lecture lecture) {
-		return !applicationRepository.existsByUserIdAndLecture(command.userId(), lecture);
+		LocalDate requestDate = command.requestAt().toLocalDate();
+		return !applicationRepository.existsByUserIdAndLectureAndRequestDate(command.userId(), lecture, requestDate);
 	}
 }
