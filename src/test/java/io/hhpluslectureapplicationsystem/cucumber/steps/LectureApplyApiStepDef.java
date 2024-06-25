@@ -41,6 +41,7 @@ public class LectureApplyApiStepDef implements En {
 
 
 		Then("특강 신청 완료 여부를 조회하면 신청 성공 응답을 받고 응답은 다음과 같은 내용을 포함한다.", this::checkApplicationStatusWithSuccessResponse);
+		Then("{string} 아이디로 {string} 특강 신청 완료 여부를 조회하면 다음과 같이 확인된다", this::checkApplicationStatusWithUserIdWithFailResponse);
 
 
 		Then("{string} 아이디의 {string} 특강 신청 이력이 생성되었는지 확인한다", this::verifyLectureApplyHistoryIsProperlyCreated);
@@ -88,6 +89,22 @@ public class LectureApplyApiStepDef implements En {
 		LectureApplicationStatusRequest statusRequest = LectureApplicationStatusRequest.of(recentRequest.getUserId(), recentRequest.getLectureExternalId());
 
 		LectureApplicationStatusResponse statusResponse = parseLectureApplicationStatusResponse(checkSingleApplicationStatusWithOk(recentRequest.getUserId(), statusRequest));
+
+		putLectureApplicationStatusResponse(statusResponse);
+
+		Map<String, String> expectedData = dataTable.asMaps().get(0);
+		assertTrue(matchResponse(expectedData, statusResponse), "status 필드가 정확하지 않습니다.");
+	}
+
+
+	private void checkApplicationStatusWithUserIdWithFailResponse(String userId, String lectureTitle, DataTable dataTable) {
+		LectureGeneralResponse lecture = getSearchResponseByTitleFromResponses(lectureTitle);
+		if (lecture == null) {
+			throw new RuntimeException("test 실패! lectureTitle not found" );
+		}
+
+		LectureApplicationStatusRequest statusRequest = LectureApplicationStatusRequest.of(userId, lecture.lectureExternalId());
+		LectureApplicationStatusResponse statusResponse = parseLectureApplicationStatusResponse(checkSingleApplicationStatusWithOk(userId, statusRequest));
 
 		putLectureApplicationStatusResponse(statusResponse);
 
