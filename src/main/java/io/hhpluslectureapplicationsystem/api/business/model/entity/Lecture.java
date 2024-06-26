@@ -3,6 +3,8 @@ package io.hhpluslectureapplicationsystem.api.business.model.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,8 +34,8 @@ public class Lecture {
 	@Column(nullable = false, unique = true)
 	private String lectureExternalId;
 
-	@Version
-	private Long version;
+	// @Version
+	// private Long version;
 
 	@Column(nullable = false)
 	private String title;
@@ -55,6 +57,9 @@ public class Lecture {
 
 	@Column(nullable = false)
 	private int capacity;
+
+	@Column(nullable = false)
+	private int registeredCount = 0; // 등록된 신청자 수
 
 	@Column(nullable = false)
 	private String location;
@@ -82,5 +87,16 @@ public class Lecture {
 
 	public LocalDateTime calculateLectureEndTime() {
 		return this.lectureStartTime.plusMinutes(durationMinutes);
+	}
+
+	// 신청자 수 증가
+	public void incrementRegisteredCount() {
+		this.registeredCount++;
+	}
+
+	// 수용 인원 초과 여부 확인
+	@JsonIgnore
+	public boolean isCapacityExceeded() {
+		return this.registeredCount >= this.capacity;
 	}
 }

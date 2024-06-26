@@ -1,7 +1,10 @@
 package io.hhpluslectureapplicationsystem.cucumber.contextholder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
@@ -24,6 +27,9 @@ public class LectureApplyContextHolder {
 	private static final AtomicReference<String> mostRecentApplyRequestId = new AtomicReference<>();
 	private static final AtomicReference<String> mostRecentHistoryResponseId = new AtomicReference<>();
 
+	private static final ConcurrentHashMap<Integer, String> concurrentUserIds = new ConcurrentHashMap<>();
+
+
 	public static void initFields() {
 		applyResponseMap.clear();
 		applyRequestMap.clear();
@@ -33,6 +39,7 @@ public class LectureApplyContextHolder {
 		mostRecentApplyResponseId.set(null);
 		mostRecentApplyRequestId.set(null);
 		mostRecentHistoryResponseId.set(null);
+		concurrentUserIds.clear();
 	}
 
 	public static void putLectureApplyResponse(LectureApplyResponse response) {
@@ -92,5 +99,22 @@ public class LectureApplyContextHolder {
 	public static LectureApplicationHistoryResponses getMostRecentLectureApplyHistoryResponses() {
 		String recentHistoryUserId = mostRecentHistoryResponseId.get();
 		return recentHistoryUserId != null ? getLectureApplyHistoryResponses(recentHistoryUserId) : null;
+	}
+
+
+	public static void putConcurrentUserId(int index, String userId) {
+		concurrentUserIds.put(index, userId);
+	}
+
+	public static String getConcurrentUserId(int index) {
+		return concurrentUserIds.get(index);
+	}
+
+	public static int getConcurrentUserCount() {
+		return concurrentUserIds.size();
+	}
+
+	public static List<String> fetchAllRecentUserId() {
+		return new ArrayList<>(concurrentUserIds.values());
 	}
 }

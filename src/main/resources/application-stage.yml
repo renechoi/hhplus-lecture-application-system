@@ -9,6 +9,9 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:root}  # 기본값 설정
     password: ${SPRING_DATASOURCE_PASSWORD:1234}  # 기본값 설정
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 50
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +19,12 @@ spring:
       hibernate:
         show-sql: true
         generate-ddl: true
+  task:
+    execution:
+      pool:
+        core-size: 12
+        max-size: 20
+        queue-capacity: 100
 
 server:
   port: 24021 #24년 2주차 과제 stage

@@ -2,6 +2,7 @@ package io.hhpluslectureapplicationsystem.api.business.operators.pkgenerator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -20,9 +21,10 @@ public class LectureApplicationPkGenerator implements PkGenerator{
 	@Override
 	public String generate(String uniqueParam) {
 		String sanitizedParam = processUniqueParam(uniqueParam);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+		String uuidPrefix = UUID.randomUUID().toString().substring(0, 6);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSnnnnnnnnn");
 		String timeSuffix = LocalDateTime.now().format(formatter);
-		return sanitizedParam + midfix + timeSuffix;
+		return sanitizedParam + midfix + uuidPrefix + timeSuffix;
 	}
 
 	private String processUniqueParam(String uniqueParam) {

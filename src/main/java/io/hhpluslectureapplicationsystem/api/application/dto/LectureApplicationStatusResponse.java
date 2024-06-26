@@ -12,6 +12,5 @@ public record LectureApplicationStatusResponse(
 ) {
 	public static LectureApplicationStatusResponse from(LectureApplicationStatusInfo info) {
 		return ObjectMapperBasedVoMapper.convert(info, LectureApplicationStatusResponse.class);
-
 	}
 }

@@ -19,6 +19,7 @@ public class LectureCapacitySpecification implements Specification<LectureApplyC
 
 	@Override
 	public boolean isSatisfiedBy(LectureApplyCommand command, Lecture lecture) {
-		return applicationRepository.countByLecture(lecture) < lecture.getCapacity();
+		// return applicationRepository.countByLecture(lecture) < lecture.getCapacity();
+		return !lecture.isCapacityExceeded();
 	}
 }
