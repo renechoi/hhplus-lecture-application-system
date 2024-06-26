@@ -17,14 +17,17 @@ import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureApplic
  */
 public interface LectureApplicationRepository extends JpaRepository<LectureApplication, String> {
 	Optional<LectureApplication> findLectureApplicationByUserIdAndLecture(String userId, Lecture lecture);
-	boolean existsByUserIdAndLectureLectureExternalId(String userId, String lectureExternalId);
-	Optional<LectureApplication> findByUserIdAndLectureLectureExternalId(String userId, String lectureExternalId);
 
-	boolean existsByUserIdAndLecture(String userId, Lecture lecture);
 
-	long countByLecture(Lecture lecture);
+	@Query("SELECT CASE WHEN COUNT(la) > 0 THEN true ELSE false END " +
+		"FROM LectureApplication la " +
+		"JOIN la.lecture l " +
+		"WHERE la.userId = :userId AND l.lectureExternalId = :lectureExternalId")
+	boolean existsByUserIdAndLectureExternalId(@Param("userId") String userId, @Param("lectureExternalId") String lectureExternalId);
 
-	List<LectureApplication> findByUserId(String userId);
+
+
+
 
 
 	// todo -> refactoring

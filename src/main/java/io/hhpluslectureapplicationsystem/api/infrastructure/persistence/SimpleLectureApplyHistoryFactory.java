@@ -3,6 +3,8 @@ package io.hhpluslectureapplicationsystem.api.infrastructure.persistence;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureApplicationHistory;
@@ -28,7 +30,7 @@ public class SimpleLectureApplyHistoryFactory implements LectureApplyHistoryFact
 	 * 2) 시도 이벤트가 먼저 도달하는 경우 -> 이미 저장된 시도 이력이 존재할 것이므로 해당 이벤트를 조회하여 덮어씀
 	 */
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void upsertSuccessEvent(LectureApplySuccessEvent event){
 		LectureApplicationHistory history = historyRepository
 			.findByUserIdAndLectureExternalIdAndRequestAt(event.getUserId(), event.getLectureExternalId(), event.getRequestAt())
@@ -44,7 +46,7 @@ public class SimpleLectureApplyHistoryFactory implements LectureApplyHistoryFact
 	 * 2) 시도 이벤트가 먼저 도달하는 경우 -> 언제나 저장
 	 */
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveTryHistory(LectureApplyTryEvent event) {
 
 		Optional<LectureApplicationHistory> optionalHistory = historyRepository

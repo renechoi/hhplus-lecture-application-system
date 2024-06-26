@@ -32,11 +32,19 @@ public class SimpleLectureApplicationHistoryResolver implements LectureApplicati
 		List<LectureApplicationHistory> histories = lectureApplyHistoryRepository.findByUserId(userId);
 
 		return histories.stream()
-			.filter(LectureApplicationHistory::isSuccess)
 			.map(history -> {
-			Lecture lecture = lectureRepository.findByLectureExternalId(history.getLectureExternalId()).orElse(null);
-			LectureApplication lectureApplication = lectureApplicationRepository.findById(history.getLectureApplicationId()).orElse(null);
-			return LectureApplicationHistoryInfo.from(history, lecture, lectureApplication);
-		}).collect(Collectors.toList());
+				Lecture lecture = getLectureByExternalId(history.getLectureExternalId());
+				LectureApplication lectureApplication = getLectureApplicationById(history.getLectureApplicationId());
+				return LectureApplicationHistoryInfo.from(history, lecture, lectureApplication);
+			}).collect(Collectors.toList());
 	}
+
+	private Lecture getLectureByExternalId(String lectureExternalId) {
+		return lectureExternalId != null ? lectureRepository.findByLectureExternalId(lectureExternalId).orElse(null) : null;
+	}
+
+	private LectureApplication getLectureApplicationById(String  lectureApplicationId) {
+		return lectureApplicationId != null ? lectureApplicationRepository.findById(lectureApplicationId).orElse(null) : null;
+	}
+
 }

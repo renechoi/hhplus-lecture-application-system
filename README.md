@@ -668,6 +668,383 @@ Database에 정상적으로 하나의 이력으로 생성되는 것을 볼 수 �
 
 
 
+# 동시성 이슈 
+
+프로젝트는 다음과 같은 요구사항에 따라 동시성 처리를 필요로 한다. 
+
+> 각 강의는 선착순 30명만 신청 가능합니다.
+> 이미 신청자가 30명이 초과되면 이후 신청자는 요청을 실패합니다.
+
+먼저 낙관적 락을 이용해 구현해보았다. 
+
+## 낙관적 락을 이용한 구현 
+
+JPA에서 이용하는 기능을 이용해 어플리케이션 수준에서는 쉽게 낙관적 락을 구현할 수 있다. 다음과 같은 어노테이션을 붙여만 주면 된다. 
+
+```
+    @Version
+    private Long version; // 낙관적 락을 위한 버전 필드
+```
+
+낙관적 락에는 버전 혹은 시간 정보가 데이터베이스 레벨에서의 충돌을 감지하는데 사용된다. 
+
+일반적으로 이 방식은 주로 읽기 위주의 시스템에서 효과적이다.
+
+**엔티티 구현**
+
+```java
+public class LectureApplication extends AbstractAggregateRoot<LectureApplication> {
+    @Id
+    private String lectureApplicationId;
+
+    @Version
+    private Long version; // 낙관적 락을 위한 버전 필드
+
+    // ...
+```
+
+
+**서비스 레이어에서 낙관적 락 처리**
+
+서비스 레이어에서는 트랜잭션을 사용하여 데이터를 처리한다. 
+
+@Transactional 애노테이션을 사용하여 트랜잭션을 관리하고, 낙관적 락 충돌이 발생할 때 예외를 처리한다.
+
+
+```java
+@Service
+public class SimpleLectureApplyService implements LectureApplyService {
+
+    @Transactional
+    public LectureApplyInfo applyForLecture(LectureApplyCommand command) {
+        Lecture lecture = lectureRepository.findByLectureExternalId(command.lectureExternalId()).orElseThrow(LectureNotFoundException::new);
+
+        lectureApplyValidator.validate(command, lecture);
+
+        LectureApplication lectureApplication = command.toEntity()
+            .withPk(lectureApplicationPkGenerator.generate(lecture.getTitle()))
+            .withSk(randomUUID().toString().substring(0,12))
+            .withLecture(lecture)
+            .withAppliedAt(now())
+            .asApplied()
+            .publish();
+
+        return LectureApplyInfo.from(lectureApplicationRepository.save(lectureApplication));
+    }
+```
+
+@Version 애노테이션이 붙은 version 필드를 통해 낙관적 락을 구현한다. 이 필드는 엔티티가 갱신될 때마다 자동으로 증가한다.
+
+applyForLecture 메서드는 트랜잭션으로 처리되며, 낙관적 락 충돌 시 OptimisticLockingFailureException을 발생시켜 트랜잭션을 롤백된다. 
+
+그런데 낙관적 락은 이와 같은 구현만으로는 충분하지 않다. 왜 그럴까? 
+
+
+### 실패하는 테스트 
+
+다음과 같은 동시성 요청 시나리오를 작성했고 테스트한 결과, 실패했다!
+
+```
+  Scenario: 동시 다발적인 특강 신청 시나리오
+    Given 특강 신청 페이지에 접속하여 현재 제공되는 특강 목록을 조회한다
+    When 31명의 사용자가 동시에 "항해 특강 1" 특강 신청을 요청한다
+    Then 총 이력의 개수는 31개로 확인된다
+    And 31명에 대해 "항해 특강 1" 특강 신청 완료 여부를 조회하면 30명은 성공했고 1명은 실패했음이 확인된다
+```
+
+![optimistic-concurrency-failure1.png](document%2Foptimistic-concurrency-failure1.png)
+
+
+### 문제의 원인
+
+결론부터 이야기하자면 낙관적 락이 제대로 작동하지 않는 이유는 충돌이 발생하지 않았기 때문이다.  
+
+### 검증 로직의 문제
+
+현재 검증 로직에서는 실제 데이터베이스에 저장된 신청자의 개수와 강의에 설정된 수용 인원을 비교하여 검증을 수행한다.
+
+```java
+@Component
+@RequiredArgsConstructor
+public class LectureApplyValidator implements Validator<LectureApplyCommand, Lecture> {
+    private final LectureCapacitySpecification capacitySpecification;
+    private final UniqueUserApplicationSpecification uniqueUserApplicationSpecification;
+
+    @Override
+    public void validate(LectureApplyCommand command, Lecture lecture) {
+        if (uniqueUserApplicationSpecification.isNotSatisfiedBy(command, lecture)) {
+            throw new LectureNotApplicableException(DUPLICATE_APPLICATION);
+        }
+        if (capacitySpecification.isNotSatisfiedBy(command, lecture)) {
+            throw new LectureNotApplicableException(LECTURE_FULL);
+        }
+    }
+}
+```
+
+이 검증 로직에서 수용 인원을 체크하는 구현은 `capacitySpecification`에 다음과 같이 구현되어 있다.
+
+```java
+@Component
+@RequiredArgsConstructor
+public class LectureCapacitySpecification implements Specification<LectureApplyCommand, Lecture> {
+    private final LectureApplicationRepository applicationRepository;
+
+    @Override
+    public boolean isSatisfiedBy(LectureApplyCommand command, Lecture lecture) {
+        return applicationRepository.countByLecture(lecture) < lecture.getCapacity();
+    }
+}
+```
+
+
+문제는 이렇다.
+
+낙관적 락은 `@Version` 필드를 이용해 엔티티의 변경 사항을 감지하고 충돌을 처리하지만, 현재 구조에서는 `LectureApplication` 엔티티와 `Lecture` 엔티티 간의 상호작용이 제대로 이루어지지 않아 충돌을 감지하지 못하고 있다.
+
+### 버전 필드의 문제
+
+- `LectureApplication` 엔티티와 `Lecture` 엔티티 모두에 `@Version` 필드가 있지만, `LectureApplication`이 추가될 때마다 `Lecture` 엔티티가 갱신되지 않는다.
+- `Lecture` 엔티티의 버전 정보는 그대로 유지되기 때문에, 강의 신청이 추가될 때마다 `Lecture` 엔티티의 버전 충돌이 발생하지 않는다.
+
+즉, `Lecture` 엔티티의 버전 정보는 강의 수용 인원 체크와 무관하게 유지되기 때문에, 실제로 낙관적 락에 의한 충돌이 발생할 로직이 없다.
+
+### 검증 로직의 현재 동작 방식
+
+- 현재 검증 로직은 `LectureApplication`의 수를 매번 데이터베이스에서 조회하여, `Lecture` 엔티티에 설정된 수용 인원과 비교한다.
+- 이 과정에서 데이터베이스 읽기와 쓰기가 동시에 발생하지만, 트랜잭션 격리 수준에 따라 읽기 작업은 아직 커밋되지 않은 쓰기 작업을 반영하지 않는다.
+- 결과적으로 여러 트랜잭션이 동시에 수용 인원 검사를 통과하고, 31명이 넘는 사용자가 동시에 강의 신청에 성공하게 된다.
+
+어떻게 해야할까? 간단하다. 충돌이 발생하도록 하면된다. 
+
+
+즉 카운트에 대한 책임을 `Lecture`가 지고 매번 `LectureApplication`이 생성될 때마다 이를 갱신해주는 것이다.
+
+```java
+@Entity
+public class Lecture {
+	
+    //... 
+    
+    @Column(nullable = false)
+    private int registeredCount = 0; // 등록된 신청자 수
+    
+    // ...
+
+	public void incrementRegisteredCount() {
+		this.registeredCount++;
+	}
+}
+```
+
+검증에서는 다음과 같이 수정한다. 
+
+```java
+public class LectureCapacitySpecification implements Specification<LectureApplyCommand, Lecture> {
+	
+	@Override
+	public boolean isSatisfiedBy(LectureApplyCommand command, Lecture lecture) {
+		return !lecture.isCapacityExceeded();
+	}
+}
+```
+
+### 여전히 실패하는 테스트 
+
+그런데도 테스트가 실패했다. 
+
+낙관적 락은 기본적으로 충돌을 감지하여 예외를 발생시킨다. 동시적으로 요청이 쏟아져 올 때 충돌은 너무 발생하게 되다.
+결과적으로 너무 많은 요청에 대해 너무 많은 충돌이 발생하며 트랜잭션 충돌에 따라 데이터베이스에서 데드락이 발생해버린 것이다! 
+
+데드락은 여러 트랜잭션이 서로가 필요로 하는 리소스를 점유하고 있을 때 발생하는 교착 상태를 말한다.
+즉, 두 개 이상의 트랜잭션이 서로 상대방의 리소스가 해제되기를 기다리면서 무한 대기 상태에 빠지는 상황이다. 
+
+여러 트랜잭션이 동시에 동일한 레코드를 업데이트하려고 하면, 각 트랜잭션은 다른 트랜잭션이 작업을 완료할 때까지 기다려야 한다. 이 과정에서 충돌이 발생하고, 충돌이 빈번할수록 대기 시간이 길어진다.
+
+트랜잭션 A가 레코드 X에 락을 걸고, 트랜잭션 B가 레코드 Y에 락을 걸었다고 가정해보자. 이후 트랜잭션 A가 레코드 Y에 접근하려고 하고, 트랜잭션 B가 레코드 X에 접근하려고 하면, 두 트랜잭션은 서로가 점유한 리소스를 기다리면서 데드락 상태에 빠진다.
+
+다음과 같은 로그를 보자.
+
+```plaintext
+20:54:05.765 [ERROR] [http-nio-auto-1-exec-2] [org.hibernate.orm.jdbc.batch] - HHH100501: Exception executing batch [java.sql.BatchUpdateException: Deadlock found when trying to get lock; try restarting transaction], SQL: /* update for io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture */update lecture set application_close_time=?, application_open_time=?, capacity=?, description=?, duration_minutes=?, instructor=?, lecture_external_id=?, lecture_start_time=?, location=?, registered_count=?, status=?, title=?, version=? where lecture_id=? and version=?
+20:54:05.765 [ERROR] [http-nio-auto-1-exec-30] [org.hibernate.orm.jdbc.batch] - HHH100501: Exception executing batch [java.sql.BatchUpdateException: Deadlock found when trying to get lock; try restarting transaction], SQL: /* update for io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture */update lecture set application_close_time=?, application_open_time=?, capacity=?, description=?, duration_minutes=?, instructor=?, lecture_external_id=?, lecture_start_time=?, location=?, registered_count=?, status=?, title=?, version=? where lecture_id=? and version=?
+...
+```
+
+특히, 31명의 사용자가 동시에 동일한 강의에 신청하는 경우, 각 트랜잭션이 `registered_count` 필드를 갱신하려고 하면서 충돌이 발생한다.
+
+1. **동시성 충돌 증가**:
+    - 여러 트랜잭션이 동시에 동일한 `Lecture` 엔티티의 `registered_count` 필드를 갱신하려고 하면, 데이터베이스는 충돌을 감지하고 트랜잭션을 롤백시킨다. 
+
+2. **낙관적 락의 한계**:
+    - 낙관적 락은 충돌이 적을 때 효과적이다. 그러나 동시성 요청이 매우 높은 시나리오에서는 많은 충돌이 발생하고, 이에 따른 롤백이 빈번하게 일어나 성능이 저하되고 이와 같이 데드락 위험성도 발생한다.
+
+따라서, 낙관적 락을 사용한 현재 방식은 동시성 충돌이 빈번하게 발생하는 상황에서는 적합하지 않다는 결론에 도달했다.
+
+
+
+## 비관적 락을 이용한 구현
+
+낙관적 락 대신 비관적 락을 사용하여 데이터베이스 차원에서 동시성 문제를 해결하고자 하였다. 분산 락을 사용하기에 앞서 데이터베이스 차원에서의 접근으로 풀어보고 싶었다.
+
+비관적 락은 레코드에 락을 걸어 다른 트랜잭션이 접근하지 못하게 하여 충돌을 방지한다. 테이블 수준의 락으로 select for update를 사용하여 해당 레코드를 조회하고, 업데이트를 진행한다. 
+
+구현 자체는 `JPA`의 기능을 이용하므로 어렵지 않다. 
+
+```java
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT l FROM Lecture l WHERE l.lectureExternalId = :externalId")
+	Optional<Lecture> findByLectureExternalIdForUpdate(@Param("externalId") String externalId);
+```
+
+락 자체는 순차 처리를 보장하지 않지만, 비관적 락의 경우 락을 획득하는 과정에서 자연스럽게 순차 처리가 이루어진다. 이는 비관적 락의 메커니즘 특성으로 인해 발생하는 결과로 이해할 수 있다.
+
+따라서, 데이터 검증(validation) 처리 이후 `Lecture` 클래스의 `count` 필드를 증가시키면 된다. 
+
+1. `lectureExternalId`를 가진 `Lecture` 엔터티를 비관적 락 모드로 조회한다.
+2. 데이터 검증을 수행하여 유효성을 확인한다.
+3. 검증이 완료되면 `Lecture` 엔터티의 `count` 필드를 증가시킨다.
+4. 특강 신청 외 기타 변경 사항을 데이터베이스에 커밋하여 트랜잭션을 종료한다.
+
+이 과정을 통해 비관적 락을 사용한 동시성 제어와 안전한 데이터 업데이트를 구현할 수 있다. 
+
+이제 정상적으로 테스트가 통과해야 할텐데... 역시 또 문제가 발생했다! 
+
+### 문제 1: 이력 기록에서의 롤백 문제
+
+특정 이유로 하나의 트랜잭션이 실패하면 시도 이력도 롤백되는 문제가 발생했다. 
+
+![history-failure-rollback-problem1.png](document%2Fhistory-failure-rollback-problem1.png)
+
+![history-failure-rollback-problem2.png](document%2Fhistory-failure-rollback-problem2.png)
+
+
+이 문제는 시도 이력이 동기적으로 엮여 있어서 발생한 문제였다.   
+
+원래 의도는 비동기였지만 `@Async` 애노테이션을 누락한 상태였다.  
+`@Async` 애노테이션을 추가하여 비동기적으로 처리되도록 수정하여 비교적 간단하게 해결할 수 있었다.
+
+```java
+public class LectureApplyEventHandler {
+	
+	@Async
+	@EventListener
+	public void handleLectureApplyTryEvent(LectureApplyTryEvent event) {
+		lectureApplyHistoryFactory.saveTryHistory(event);
+	}
+}
+```
+
+이제 `handleLectureApplyTryEvent` 메서드는 비동기적으로 실행되므로, 트랜잭션이 롤백되더라도 시도 이력은 별도의 비동기 트랜잭션에서 처리되어 롤백되지 않는다. 
+
+그렇게 고치자마자 두번째 문제가 발생했다. 
+
+
+### 문제 2: 성공 이력의 조회 문제
+
+성공 이력을 `upsert` 할 때 동일한 파라미터로 외부에서 조회한 결과 커밋된 행이 존재함에도 불구하고 코드 상에서는 조회되지 않는 문제가 발생했다.
+결과적으로 다음과 같이 실제 시도 이력이 31개인데도 upsert가 되지 않아 더 많은 개수의 시도가 생기는 문제가 된 것이다. 
+
+
+![history-not-consistency1.png](document%2Fhistory-not-consistency1.png)
+
+
+![history-not-consistency2.png](document%2Fhistory-not-consistency2.png)
+
+
+이 문제는 무엇 때문인 걸까? 
+
+트랜잭션 격리 수준과 트랜잭션의 비동기 처리 방식이 상호 작용하면서 발생한 것 같다. 
+
+프로젝트는 MySQL의 기본 격리 수준인 **REPEATABLE READ** 격리 수준을 사용한다. **REPEATABLE READ**에서는 트랜잭션이 시작된 시점의 스냅샷을 기준으로 데이터를 조회하기 때문에, 다른 트랜잭션에서 커밋된 변경 사항이 현재 트랜잭션에서는 보이지 않는 문제가 발생할 수 있다.
+
+생각해 보자. `LectureApplySuccessEvent`와 `LectureApplyTryEvent`가 서로 다른 트랜잭션에서 처리되는데, `LectureApplyTryEvent`가 처리되는 트랜잭션에서 `REPEATABLE READ` 격리 수준 때문에 `LectureApplySuccessEvent`에 의해 업데이트된 이력이 보이지 않을 수 있다. 
+따라서 `LectureApplySuccessEvent`에서 커밋된 데이터가 `LectureApplyTryEvent`에서 조회되지 않는 결과를 초래한 것이다. 
+
+해결하는 방법으로 `upsert` 메서드에 대해서도 `REQUIRES_NEW` 전파 수준을 적용하였다.
+
+```java
+@Override
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void upsertSuccessEvent(LectureApplySuccessEvent event){
+	LectureApplicationHistory history = historyRepository
+		.findByUserIdAndLectureExternalIdAndRequestAt(event.getUserId(), event.getLectureExternalId(), event.getRequestAt())
+		.map(existingHistory -> existingHistory.updateSuccess(event.isSuccess()))
+		.map(existingHistory -> existingHistory.updateLectureApplicationInfoWithSuccessEvent(event))
+		.orElseGet(event::toEntity);
+
+	historyRepository.save(history);
+}
+```
+
+### 문제 3: 동시 요청 처리 문제
+
+곧바로 또 다른 문제가 발생했다.
+
+다음과 같은 로그를 볼 수 있었다. 
+
+
+![connection-pool.png](document%2Fconnection-pool.png)
+
+
+커넥션 풀 문제였다. HikariCP가 더 이상 새로운 커넥션을 제공할 수 없다는 것이다. 요청이 몰리면서 커넥션 풀이 포화 상태에 이르고, 그로 인해 SQL 요청이 대기 중 타임아웃 되는 상황이 발생했다.
+
+즉, 현재 설정된 커넥션 풀의 크기가 요청을 처리하기에 충분하지 않은 상황에서, 비동기 트랜잭션 처리로 인해 동시에 많은 수의 데이터베이스 커넥션이 필요해졌으며, 커넥션 풀이 감당할 수 없는 수준까지 증가한 것이다.
+
+해결은 우선 커넥션 풀을 늘려주는 것으로 시도했다. 
+
+`yml` 파일에서 HikariCP의 커넥션 풀 설정을 다음과 같이 조정했다.
+
+```properties
+    hikari:
+        maximum-pool-size: 50
+        minimum-idle: 50
+```
+
+
+또 하나의 방법은 동시 요청의 수를 제어하여 한 번에 처리하는 요청의 수를 제한하는 법이다. 다음과 같이 비동기 작업의 스레드 풀 크기를 조정하여 한 번에 너무 많은 비동기 작업이 실행되지 않도록 했다.
+
+```java
+
+@Configuration
+public class AsyncConfig implements AsyncConfigurer {
+
+	private Executor createTaskExecutor(String threadNamePrefix) {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(10);
+		executor.setMaxPoolSize(50);
+		executor.setQueueCapacity(1000);
+		executor.setThreadNamePrefix(threadNamePrefix);
+		executor.initialize();
+		return executor;
+	}
+
+	@Bean
+	public Executor lectureApplyTryEventExecutor(){
+		return createTaskExecutor("lecture-apply-try-event-");
+	}
+}
+```
+```java
+@Async("lectureApplyTryEventExecutor")
+	@EventListener
+	public void handleLectureApplyTryEvent(LectureApplyTryEvent event) {
+		lectureApplyHistoryFactory.saveTryHistory(event);
+	}
+```
+
+
+
+휴 🤣 
+
+이로써 마침내 테스트가 통과했다 ! 
+
+
+![concurreny-test-success.png](document%2Fconcurreny-test-success.png)
+
+
+
+
 
 
 

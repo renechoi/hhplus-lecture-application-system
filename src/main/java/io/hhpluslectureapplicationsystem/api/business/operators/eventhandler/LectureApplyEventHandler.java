@@ -1,6 +1,7 @@
 package io.hhpluslectureapplicationsystem.api.business.operators.eventhandler;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -25,6 +26,8 @@ public class LectureApplyEventHandler {
 		lectureApplyHistoryFactory.upsertSuccessEvent(event);
 	}
 
+	@Async("lectureApplyTryEventExecutor")
+	// @Async
 	@EventListener
 	public void handleLectureApplyTryEvent(LectureApplyTryEvent event) {
 		lectureApplyHistoryFactory.saveTryHistory(event);

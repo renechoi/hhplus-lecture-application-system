@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LectureApplyValidator implements Validator<LectureApplyCommand, Lecture> {
 
-	private final LectureCapacitySpecification capacitySpecification;
 	private final UniqueUserApplicationSpecification uniqueUserApplicationSpecification;
+	private final LectureCapacitySpecification capacitySpecification;
 
 	@Override
 	public void validate(LectureApplyCommand command, Lecture lecture) {

@@ -4,8 +4,10 @@ import static java.time.LocalDateTime.*;
 import static java.util.UUID.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationHistoryInfo;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SimpleLectureApplyService implements LectureApplyService {
+
 	private final LectureRepository lectureRepository;
 	private final LectureApplicationRepository lectureApplicationRepository;
 	private final LectureApplicationPkGenerator lectureApplicationPkGenerator;
@@ -39,10 +42,10 @@ public class SimpleLectureApplyService implements LectureApplyService {
 	private final Validator<LectureApplyCommand, Lecture> lectureApplyValidator;
 
 	@Override
-	@Transactional
 	@LogLectureApplyTry
+	@Transactional
 	public LectureApplyInfo applyForLecture(LectureApplyCommand command) {
-		Lecture lecture = lectureRepository.findByLectureExternalId(command.lectureExternalId()).orElseThrow(LectureNotFoundException::new);
+		Lecture lecture = lectureRepository.findByLectureExternalIdForUpdate(command.lectureExternalId()).orElseThrow(LectureNotFoundException::new);
 
 		lectureApplyValidator.validate(command, lecture);
 
@@ -54,13 +57,16 @@ public class SimpleLectureApplyService implements LectureApplyService {
 			.asApplied()
 			.publish();
 
+		lecture.incrementRegisteredCount();
+
 		return LectureApplyInfo.from(lectureApplicationRepository.save(lectureApplication));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public LectureApplicationStatusInfo checkSingleApplicationStatus(LectureApplicationStatusCommand command) {
-		boolean userApplied = lectureApplicationRepository.existsByUserIdAndLectureLectureExternalId(command.userId(), command.lectureExternalId());
+
+		boolean userApplied = lectureApplicationRepository.existsByUserIdAndLectureExternalId(command.userId(),command.lectureExternalId());
 		return new LectureApplicationStatusInfo(userApplied);
 	}
 
