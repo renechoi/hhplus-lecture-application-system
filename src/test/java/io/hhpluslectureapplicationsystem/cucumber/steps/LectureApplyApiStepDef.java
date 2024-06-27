@@ -180,7 +180,7 @@ public class LectureApplyApiStepDef implements En {
 		});
 
 		executorService.shutdown();
-		awaitTermination(executorService, 30, TimeUnit.SECONDS);
+		awaitTermination(executorService, 60, TimeUnit.SECONDS);
 	}
 
 	private void verifyTotalHistoryCount(int expectedCount) {

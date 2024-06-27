@@ -102,7 +102,7 @@ class SimpleLectureApplyServiceTest {
 	@Test
 	@DisplayName("강의 신청 서비스 테스트")
 	void testApplyForLecture() {
-		when(lectureRepository.findByLectureExternalIdForUpdate(anyString())).thenReturn(Optional.of(lecture));
+		when(lectureRepository.findByLectureExternalIdWithLock(any())).thenReturn(Optional.of(lecture));
 		when(lectureApplicationPkGenerator.generate(anyString())).thenReturn("generatedId");
 		when(lectureApplicationRepository.save(any(LectureApplication.class))).thenReturn(lectureApplication);
 
@@ -110,18 +110,18 @@ class SimpleLectureApplyServiceTest {
 
 		assertNotNull(result);
 		assertEquals("user1", result.userId());
-		verify(lectureRepository, times(1)).findByLectureExternalIdForUpdate(anyString());
+		verify(lectureRepository, times(1)).findByLectureExternalIdWithLock(any());
 		verify(lectureApplicationRepository, times(1)).save(any(LectureApplication.class));
 	}
 
 	@Test
 	@DisplayName("강의 신청 서비스 - 강의가 존재하지 않는 경우 테스트")
 	void testApplyForLecture_LectureNotFound() {
-		when(lectureRepository.findByLectureExternalIdForUpdate(anyString())).thenReturn(Optional.empty());
+		when(lectureRepository.findByLectureExternalIdWithLock(any())).thenReturn(Optional.empty());
 
 		assertThrows(LectureNotFoundException.class, () -> lectureApplyService.applyForLecture(lectureApplyCommand));
 
-		verify(lectureRepository, times(1)).findByLectureExternalIdForUpdate(anyString());
+		verify(lectureRepository, times(1)).findByLectureExternalIdWithLock(any());
 		verify(lectureApplicationRepository, times(0)).save(any(LectureApplication.class));
 	}
 
