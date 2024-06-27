@@ -3,7 +3,6 @@ package io.hhpluslectureapplicationsystem.api.infrastructure.persistence;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,7 @@ public class SimpleLectureApplyHistoryFactory implements LectureApplyHistoryFact
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void upsertSuccessEvent(LectureApplySuccessEvent event){
 		LectureApplicationHistory history = historyRepository
-			.findByUserIdAndLectureExternalIdAndRequestAt(event.getUserId(), event.getLectureExternalId(), event.getRequestAt())
+			.findByUserIdAndLectureExternalIdAndRequestAtWithLock(event.getUserId(), event.getLectureExternalId(), event.getRequestAt())
 			.map(existingHistory -> existingHistory.updateSuccess(event.isSuccess()))
 			.map(existingHistory -> existingHistory.updateLectureApplicationInfoWithSuccessEvent(event))
 			.orElseGet(event::toEntity);
@@ -50,7 +49,7 @@ public class SimpleLectureApplyHistoryFactory implements LectureApplyHistoryFact
 	public void saveTryHistory(LectureApplyTryEvent event) {
 
 		Optional<LectureApplicationHistory> optionalHistory = historyRepository
-			.findByUserIdAndLectureExternalIdAndRequestAt(event.getUserId(), event.getLectureExternalId(), event.getRequestAt());
+			.findByUserIdAndLectureExternalIdAndRequestAtWithLock(event.getUserId(), event.getLectureExternalId(), event.getRequestAt());
 
 		if (optionalHistory.isPresent()){
 			return;

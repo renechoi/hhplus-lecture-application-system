@@ -59,6 +59,7 @@ public class Lecture {
 	private int capacity;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private int registeredCount = 0; // 등록된 신청자 수
 
 	@Column(nullable = false)
