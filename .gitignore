@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+
+### QueryDSL ###
+/target/generated-sources/java/
+/build/generated/sources/annotationProcessor/java/main/
+/build/generated/sources/annotationProcessor/java/test/
