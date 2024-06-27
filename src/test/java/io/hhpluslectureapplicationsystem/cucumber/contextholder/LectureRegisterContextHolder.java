@@ -9,7 +9,7 @@ import io.hhpluslectureapplicationsystem.api.application.dto.LectureRegisteratio
 /**
  * @author : Rene Choi
  * @since : 2024/06/23
- */public class LectureRegisterContextHolder {
+ */public class LectureRegisterContextHolder implements TestDtoContextHolder{
 
 	private static final ConcurrentHashMap<String, LectureRegisterationResponse> lectureResponseMap = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<String, LectureRegisterRequest> lectureRequestMap = new ConcurrentHashMap<>();
