@@ -6,7 +6,7 @@ import javax.annotation.processing.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-06-28T01:53:05+0900",
+    date = "2024-06-29T10:08:13+0900",
     comments = "version: 1.5.3.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.8.jar, environment: Java 17.0.11 (Homebrew)"
 )
 public class LectureEntityMapperImpl implements LectureEntityMapper {

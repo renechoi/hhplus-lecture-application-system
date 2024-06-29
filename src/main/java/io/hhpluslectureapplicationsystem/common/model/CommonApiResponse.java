@@ -3,9 +3,6 @@ package io.hhpluslectureapplicationsystem.common.model;
 import static io.hhpluslectureapplicationsystem.common.model.GlobalResponseCode.*;
 import static io.hhpluslectureapplicationsystem.util.UrlEncodingHelper.*;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 

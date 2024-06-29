@@ -19,14 +19,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.Assertions;
-
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.En;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponse;
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
-import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralResponse;
 import io.hhpluslectureapplicationsystem.cucumber.contextholder.LectureApplyContextHolder;

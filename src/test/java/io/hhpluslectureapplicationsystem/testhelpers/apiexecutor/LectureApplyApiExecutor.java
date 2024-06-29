@@ -3,8 +3,6 @@ package io.hhpluslectureapplicationsystem.testhelpers.apiexecutor;
 import static io.restassured.RestAssured.*;
 import static org.springframework.http.MediaType.*;
 
-import java.util.Map;
-
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyRequest;
 import io.hhpluslectureapplicationsystem.util.YmlLoader;

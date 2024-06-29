@@ -1,7 +1,7 @@
 package io.hhpluslectureapplicationsystem.testhelpers.parser;
 
-import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyResponse;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;

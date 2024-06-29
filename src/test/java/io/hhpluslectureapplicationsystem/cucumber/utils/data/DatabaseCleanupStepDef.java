@@ -7,16 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import io.cucumber.java8.En;
-import io.hhpluslectureapplicationsystem.cucumber.contextholder.LectureApplyContextHolder;
-import io.hhpluslectureapplicationsystem.cucumber.contextholder.LectureRegisterContextHolder;
-import io.hhpluslectureapplicationsystem.cucumber.contextholder.LectureSearchContextHolder;
 import io.hhpluslectureapplicationsystem.cucumber.contextholder.TestDtoContextHolder;
-
-import io.cucumber.java8.En;
-import io.hhpluslectureapplicationsystem.cucumber.contextholder.TestDtoContextHolder;
-
-import java.lang.reflect.Method;
-import java.util.Map;
 /**
  * @author : Rene Choi
  * @since : 2024/06/17

@@ -2,10 +2,8 @@ package io.hhpluslectureapplicationsystem.api.application.dto;
 
 import java.time.LocalDateTime;
 
-
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureRegisterCommand;
 import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -2,11 +2,8 @@ package io.hhpluslectureapplicationsystem.util;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import lombok.extern.slf4j.Slf4j;
 

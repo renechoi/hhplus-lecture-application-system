@@ -5,7 +5,6 @@ import static java.util.UUID.*;
 
 import java.util.List;
 
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

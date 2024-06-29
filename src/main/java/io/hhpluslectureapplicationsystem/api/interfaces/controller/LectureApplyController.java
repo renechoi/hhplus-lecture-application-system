@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
-import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyResponse;
 import io.hhpluslectureapplicationsystem.api.application.facade.LectureApplyFacade;

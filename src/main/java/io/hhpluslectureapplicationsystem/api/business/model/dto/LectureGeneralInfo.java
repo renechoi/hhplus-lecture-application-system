@@ -1,7 +1,6 @@
 package io.hhpluslectureapplicationsystem.api.business.model.dto;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureStatus;

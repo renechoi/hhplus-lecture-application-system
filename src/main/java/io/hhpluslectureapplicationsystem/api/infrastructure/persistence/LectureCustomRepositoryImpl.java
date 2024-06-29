@@ -1,17 +1,10 @@
 package io.hhpluslectureapplicationsystem.api.infrastructure.persistence;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplyCommand;
-import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
-import io.hhpluslectureapplicationsystem.api.business.model.entity.QLecture;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 
 /**

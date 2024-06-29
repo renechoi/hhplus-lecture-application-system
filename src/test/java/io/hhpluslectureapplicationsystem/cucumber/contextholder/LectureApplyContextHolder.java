@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
+import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationStatusResponse;
-import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplicationHistoryResponses;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyRequest;
 import io.hhpluslectureapplicationsystem.api.application.dto.LectureApplyResponse;
 
