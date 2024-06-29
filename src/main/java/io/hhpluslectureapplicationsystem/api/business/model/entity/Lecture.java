@@ -11,7 +11,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,6 +58,7 @@ public class Lecture {
 	private int capacity;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private int registeredCount = 0; // 등록된 신청자 수
 
 	@Column(nullable = false)

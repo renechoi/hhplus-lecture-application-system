@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationHistoryInfo;
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationStatusCommand;
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationStatusInfo;
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplyCommand;
-import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationHistoryInfo;
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplyInfo;
 
 /**

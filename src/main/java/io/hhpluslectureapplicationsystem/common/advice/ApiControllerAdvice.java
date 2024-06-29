@@ -18,8 +18,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import io.hhpluslectureapplicationsystem.common.exception.ServerException;
 import io.hhpluslectureapplicationsystem.common.model.CommonApiResponse;
-import io.hhpluslectureapplicationsystem.common.model.ErrorResponse;
-import io.hhpluslectureapplicationsystem.common.model.GlobalResponseCode;
 import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice

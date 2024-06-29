@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationInfo;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
-import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureApplication;
 import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper;
 
 /**

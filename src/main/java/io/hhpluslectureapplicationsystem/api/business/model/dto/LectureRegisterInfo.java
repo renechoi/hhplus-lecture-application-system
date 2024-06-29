@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.Lecture;
 import io.hhpluslectureapplicationsystem.api.business.model.entity.LectureStatus;
 import io.hhpluslectureapplicationsystem.common.mapper.ObjectMapperBasedVoMapper;
-import jakarta.persistence.Column;
 
 /**
  * @author : Rene Choi

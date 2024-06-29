@@ -10,7 +10,7 @@ import io.hhpluslectureapplicationsystem.api.application.dto.LectureGeneralRespo
  * @author : Rene Choi
  * @since : 2024/06/23
  */
-public class LectureSearchContextHolder {
+public class LectureSearchContextHolder implements TestDtoContextHolder {
 	private static final ConcurrentHashMap<String, LectureGeneralResponse> searchResponseMap = new ConcurrentHashMap<>();
 	private static final AtomicReference<String> mostRecentSearchResponseId = new AtomicReference<>();
 	private static final AtomicReference<LectureGeneralResponses> mostRecentSearchResponses = new AtomicReference<>();

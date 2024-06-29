@@ -4,10 +4,8 @@ import static java.time.LocalDateTime.*;
 import static java.util.UUID.*;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.hhpluslectureapplicationsystem.api.business.model.dto.LectureApplicationHistoryInfo;
@@ -41,11 +39,12 @@ public class SimpleLectureApplyService implements LectureApplyService {
 	private final LectureApplicationHistoryResolver historyResolver;
 	private final Validator<LectureApplyCommand, Lecture> lectureApplyValidator;
 
+
 	@Override
 	@LogLectureApplyTry
 	@Transactional
 	public LectureApplyInfo applyForLecture(LectureApplyCommand command) {
-		Lecture lecture = lectureRepository.findByLectureExternalIdForUpdate(command.lectureExternalId()).orElseThrow(LectureNotFoundException::new);
+		Lecture lecture = lectureRepository.findByLectureExternalIdWithLock(command.lectureExternalId()).orElseThrow(LectureNotFoundException::new);
 
 		lectureApplyValidator.validate(command, lecture);
 
